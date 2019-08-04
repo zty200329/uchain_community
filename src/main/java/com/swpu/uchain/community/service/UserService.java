@@ -25,5 +25,12 @@ public interface UserService {
      */
     User getCurrentUser();
 
+    /**
+     * 登录
+     *
+     * @param loginForm
+     * @param response
+     * @return
+     */
     ResultVO login(LoginForm loginForm, HttpServletResponse response);
 }
