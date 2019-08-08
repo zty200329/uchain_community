@@ -25,4 +25,6 @@ public interface UserMapper {
     String getUserIdByName(String userName);
 
     User getUserByStuId(String stuId);
+
+    int updateTimes(String userId, Integer unQualifyTimes);
 }

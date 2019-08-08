@@ -30,4 +30,9 @@ public interface AddTimeService {
      */
     ResultVO check(AddTimeDTO addTimeDTO);
 
+    /**
+     * 用户查看自己补签信息
+     */
+    ResultVO getAddList(String userId);
+
 }

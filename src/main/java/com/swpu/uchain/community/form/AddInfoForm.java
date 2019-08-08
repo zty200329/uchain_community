@@ -1,13 +1,13 @@
-package com.swpu.uchain.community.dto;
+package com.swpu.uchain.community.form;
 
 import lombok.Data;
 
 /**
  * @author；lzh
- * @Date:2019/8/615:52 Descirption:
+ * @Date:2019/8/710:49 Descirption:
  */
 @Data
-public class AddInfoDTO {
+public class AddInfoForm {
 
     /** 申请人学号*/
     private String userId;
@@ -20,8 +20,4 @@ public class AddInfoDTO {
 
     /** 申请补签理由*/
     private String addExcuse;
-
-    /** 申通状态 默认0为未办理，1为通过，2为不通过*/
-    private Integer addState;
-
 }

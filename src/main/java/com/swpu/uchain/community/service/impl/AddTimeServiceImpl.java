@@ -9,6 +9,7 @@ import com.swpu.uchain.community.exception.BasicException;
 import com.swpu.uchain.community.form.AddInfoForm;
 import com.swpu.uchain.community.service.AddTimeService;
 import com.swpu.uchain.community.util.ResultVOUtil;
+import com.swpu.uchain.community.vo.AddBasicInfoVO;
 import com.swpu.uchain.community.vo.ResultVO;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -53,5 +54,14 @@ public class AddTimeServiceImpl implements AddTimeService {
             throw new BasicException(ResultEnum.SQL_ERROR.getCode(),ResultEnum.SQL_ERROR.getMsg());
         }
         return ResultVOUtil.success(addTimeDTO);
+    }
+
+    @Override
+    public ResultVO getAddList(String userId) {
+        AddBasicInfoVO addBasicInfoVO = addInfoMapper.getSelfAddInfo(userId);
+        if(addBasicInfoVO == null){
+            return ResultVOUtil.success();
+        }
+        return ResultVOUtil.success(addBasicInfoVO);
     }
 }
