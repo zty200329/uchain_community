@@ -1,6 +1,7 @@
 package com.swpu.uchain.community.util;
 
 import lombok.extern.slf4j.Slf4j;
+import org.joda.time.DateTime;
 
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
@@ -126,6 +127,17 @@ public class DateUtil {
         return hours + "-" + minutes;
     }
 
+    public static String calculateTotalTimeAddSupp(String total, String addTime) {
+        /* 取出时分 */
+        String[] tempTotal = total.split("-");
+        /* 转成int类型数组 */
+        int[] intTotal = stringToInt(tempTotal);
+        /* 计算加和之后的时分 */
+        int minutes = intTotal[1];
+        int hours = intTotal[0] + Integer.parseInt(addTime);
+        return hours + "-" + minutes;
+    }
+
     public static String calculateAverageTime(String totalTime, int timeFre) {
         String average = "0-0";
         String[] tempTotal = totalTime.split("-");
@@ -159,6 +171,24 @@ public class DateUtil {
             ints[i] = Integer.parseInt(strs[i]);
         }
         return ints;
+    }
+
+    /**
+     * 获取当天所在周的周一日期
+     */
+    public static String getMonDay() {
+        DateTime day = new DateTime();
+        String Monday = (day.plusWeeks(0).minusDays(day.getDayOfWeek() - 1).toString("yyyy-MM-dd"));
+        return Monday;
+    }
+
+    /**
+     * 获取当天所在周的周日的日期
+     */
+    public static String getSunDay() {
+        DateTime day = new DateTime();
+        String SunDay = day.plusWeeks(1).minusDays(day.getDayOfWeek()).toString("yyyy-MM-dd");
+        return SunDay;
     }
 
 

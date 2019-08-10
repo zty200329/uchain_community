@@ -23,4 +23,6 @@ public class User implements Serializable {
 
     private Integer groupId;
 
+    private Integer qualifyTime;
+
 }
