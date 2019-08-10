@@ -37,7 +37,7 @@ public class SignInServiceImpl implements SignInService {
      */
     private final int SIGN_IN = 0;
     /**
-     * 为1时，签退可用
+     * 为1时，签到中，签退可用
      */
     private final int SIGN_OUT = 1;
     /**
@@ -139,20 +139,41 @@ public class SignInServiceImpl implements SignInService {
      * @return
      */
     @Override
-    public ResultVO getSelfTimeInfo(String startDate, String endDate) {
-
-        return null;
+    public ResultVO getSelfTimeInfo(String userId, String startDate, String endDate) {
+        List<TimeInfo> timeInfoList = getTimeTableList(startDate, endDate, userId);
+        User user = userMapper.getUserByStuId(userId);
+        /* 拼装返回信息 */
+        TimeTableVo timeTableVo = new TimeTableVo();
+        List<SingleRecordVo> singleRecordVoList = togetherData(timeInfoList);
+        timeTableVo.setSingleRecordVoList(singleRecordVoList);
+        /* 计算总签到时长 */
+        String totalTime = calculateTotalTime(singleRecordVoList, userId);
+        timeTableVo.setTotalTime(totalTime);
+        /* 合格次数 */
+        int count = 0;
+        for (int i = 0; i < singleRecordVoList.size(); i++) {
+            if (VALID.equals(singleRecordVoList.get(i).getTimeValid()) || SUPP.equals(singleRecordVoList.get(i).getTimeValid())) {
+                count++;
+            }
+        }
+        String averageTime = DateUtil.calculateAverageTime(totalTime, count);
+        timeTableVo.setAverageTime(averageTime);
+        timeTableVo.setIsQualified(isQualify(userId, totalTime, averageTime));
+        timeTableVo.setUnQualifyTimes(user.getUnqualifyTimes());
+        return ResultVOUtil.success(timeTableVo);
     }
 
     /**
-     * 管理员获取某天所有人的签到情况
-     * @param tempDate
+     * 签到页面展示
+     * @param
      * @return
      */
     @Override
-    public ResultVO getSignList(String tempDate) {
+    public ResultVO getSignList() {
+        String tempDate = DateUtil.getTimeDate();
         List<SignListVo> signListVoList = timeInfoMapper.getSignListByDate(tempDate);
         for(SignListVo signListVo : signListVoList) {
+            /** 设置签到可用*/
             if(signListVo.getTimeState() != SIGN_OUT){
                 signListVo.setTimeState(SIGN_IN);
             }
@@ -192,7 +213,7 @@ public class SignInServiceImpl implements SignInService {
             /** 将补签时间加入*/
             for(AddInfo addInfo : addInfoList){
                 if(addInfo.getAddState().equals(SUPP))
-                totalTime = DateUtil.calculateTotalTimeDiff(totalTime, addInfo.getAddTime());
+                totalTime = DateUtil.calculateTotalTimeAddSupp(totalTime, addInfo.getAddTime());
             }
             allTimeListVo.setTotalTime(totalTime);
             String[] tempTotal = totalTime.split("-");
@@ -265,8 +286,32 @@ public class SignInServiceImpl implements SignInService {
     }
 
     @Override
-    public ResultVO getSelfAnyTime(String startDate, String endDate) {
-        return null;
+    public ResultVO getOneAWeekInfo(String userId) {
+        /** 获取当前周周一的日期*/
+        String startDate = DateUtil.getMonDay();
+        /** 获取当前周周日的日期*/
+        String endDate = DateUtil.getSunDay();
+        List<TimeInfo> timeInfoList = getTimeTableList(startDate, endDate, userId);
+        User user = userMapper.getUserByStuId(userId);
+        /* 拼装返回信息 */
+        TimeTableVo timeTableVo = new TimeTableVo();
+        List<SingleRecordVo> singleRecordVoList = togetherData(timeInfoList);
+        timeTableVo.setSingleRecordVoList(singleRecordVoList);
+        /* 计算总签到时长 */
+        String totalTime = calculateTotalTime(singleRecordVoList, userId);
+        timeTableVo.setTotalTime(totalTime);
+        /* 合格次数 */
+        int count = 0;
+        for (int i = 0; i < singleRecordVoList.size(); i++) {
+            if (VALID.equals(singleRecordVoList.get(i).getTimeValid()) || SUPP.equals(singleRecordVoList.get(i).getTimeValid())) {
+                count++;
+            }
+        }
+        String averageTime = DateUtil.calculateAverageTime(totalTime, count);
+        timeTableVo.setAverageTime(averageTime);
+        timeTableVo.setIsQualified(isQualify(userId, totalTime, averageTime));
+        timeTableVo.setUnQualifyTimes(user.getUnqualifyTimes());
+        return ResultVOUtil.success(timeTableVo);
     }
 
     /**
@@ -322,26 +367,11 @@ public class SignInServiceImpl implements SignInService {
      */
     public String isQualify(String userId, String totalTime, String averageTime) {
         String flag = UNVALID;
+        User user = userMapper.getUserByStuId(userId);
         String[] tempTotal = totalTime.split("-");
         String[] averageStr = averageTime.split("-");
-
-        String strId = userId.substring(0, 7);
-        String strId2 = userId.substring(0, 6);
-        if ("20193106".equals(strId)) {
-            /** 大一打卡总时间超过28小时，且平均时长小于8小时，认为合格 */
-            if (Integer.parseInt(tempTotal[0]) >= FRASHMAN && Integer.parseInt(averageStr[0]) < AVERAGETIMEHOUR) {
-                flag = VALID;
-            }
-        } else if("2019310".equals(strId2)){
-            /** 其他专业加入团队打卡总时间为20小时，且平均时长小于8个小时，认为合格 */
-            if (Integer.parseInt(tempTotal[0]) >= OTHER_FRESHMAN && Integer.parseInt(averageStr[0]) < AVERAGETIMEHOUR) {
-                flag = VALID;
-            }
-        } else {
-            /** 打卡总时间超过35小时，且平均时长小于8小时，认为合格 */
-            if (Integer.parseInt(tempTotal[0]) >= PRESCRIBEDTIME && Integer.parseInt(averageStr[0]) < AVERAGETIMEHOUR) {
-                flag = VALID;
-            }
+        if (Integer.parseInt(tempTotal[0]) >= user.getQualifyTime() && Integer.parseInt(averageStr[0]) < AVERAGETIMEHOUR) {
+            flag = VALID;
         }
         return flag;
     }
@@ -366,6 +396,23 @@ public class SignInServiceImpl implements SignInService {
      * @param singleRecordVoList
      * @return
      */
+    public String calculateTotalTime(List<SingleRecordVo> singleRecordVoList, String userId) {
+        String total = "0-0";
+        /* 循环将每条记录时长加起来 */
+        List<AddInfo> addInfoList = addInfoMapper.getAllByUserId(userId);
+        for (int i = 0; i < singleRecordVoList.size(); i++) {
+            if (VALID.equals(singleRecordVoList.get(i).getTimeValid())) {
+                total = DateUtil.calculateTotalTimeDiff(total, singleRecordVoList.get(i).getTimeTotal());
+            }
+        }
+        for (int j = 0; j< addInfoList.size(); j++) {
+            if (SUPP.equals(addInfoList.get(j).getAddState())) {
+                total = DateUtil.calculateTotalTimeAddSupp(total, addInfoList.get(j).getAddTime());
+            }
+        }
+        return total;
+    }
+
     public String calculateTotalTime(List<SingleRecordVo> singleRecordVoList) {
         String total = "0-0";
         /* 循环将每条记录时长加起来 */

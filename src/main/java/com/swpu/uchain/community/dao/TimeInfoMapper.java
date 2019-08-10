@@ -2,6 +2,7 @@ package com.swpu.uchain.community.dao;
 
 import com.swpu.uchain.community.entity.TimeInfo;
 import com.swpu.uchain.community.vo.SignListVo;
+import com.swpu.uchain.community.vo.SingleRecordVo;
 import org.apache.ibatis.annotations.Mapper;
 import org.apache.ibatis.annotations.Param;
 import org.springframework.stereotype.Component;

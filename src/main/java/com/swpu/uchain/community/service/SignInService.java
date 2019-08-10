@@ -28,14 +28,14 @@ public interface SignInService {
      * @param endDate
      * @return
      */
-    ResultVO getSelfTimeInfo(String startDate, String endDate);
+    ResultVO getSelfTimeInfo(String userId, String startDate, String endDate);
 
     /**
      * 签到页面  获取签到情况列表
-     * @param tempDate
+     * @param
      * @return
      */
-    ResultVO getSignList(String tempDate);
+    ResultVO getSignList();
 
     /**
      * 管理员通过日期  获得期间之内各成员的签到情况
@@ -62,11 +62,5 @@ public interface SignInService {
      */
     ResultVO getAnyTime(String startDate, String endDate);
 
-    /**
-     * 用户查询自己任意时间的记录
-     * @param startDate
-     * @param endDate
-     * @return
-     */
-    ResultVO getSelfAnyTime(String startDate, String endDate);
+    ResultVO getOneAWeekInfo(String userId);
 }
