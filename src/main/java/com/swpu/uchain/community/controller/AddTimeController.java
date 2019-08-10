@@ -25,18 +25,9 @@ public class AddTimeController {
     @Autowired
     private AddTimeService addTimeService;
 
-    @GetMapping("/getAll")
-    public ResultVO getAll() {
-        return addTimeService.getAllAddInfo();
-    }
-
     @PostMapping("/apply")
     public ResultVO apply(AddInfoForm addInfoForm) {
         return addTimeService.insert(addInfoForm);
     }
 
-    @PostMapping("/checkApplication")
-    public ResultVO check(AddTimeDTO addTimeDTO) {
-        return addTimeService.check(addTimeDTO);
-    }
 }
