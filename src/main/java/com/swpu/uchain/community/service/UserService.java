@@ -33,4 +33,6 @@ public interface UserService {
      * @return
      */
     ResultVO login(LoginForm loginForm, HttpServletResponse response);
+
+    ResultVO setQualifyTime(String userName, Integer qualifyTime);
 }

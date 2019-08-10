@@ -12,11 +12,16 @@
     delete from add_info
     where add_id = #{addId,jdbcType=INTEGER}
   </delete>
+  <delete id="deleteOneWeekAgo">
+    delete from add_info
+    where
+    time_date between #{startDate} and #{endDate}
+  </delete>
   <insert id="insert" parameterType="com.swpu.uchain.community.entity.AddInfo" >
-    insert into add_info (add_id, user_id, add_time, 
-      add_date, add_state)
-    values (#{addId,jdbcType=INTEGER}, #{userId,jdbcType=VARCHAR}, #{addTime,jdbcType=VARCHAR}, 
-      #{addDate,jdbcType=VARCHAR}, #{addState,jdbcType=VARCHAR})
+    insert into add_info (user_id, add_time,
+      add_date, add_state, add_excuse)
+    values (#{userId,jdbcType=VARCHAR}, #{addTime,jdbcType=VARCHAR},
+      #{addDate,jdbcType=VARCHAR}, #{addState,jdbcType=VARCHAR}, #{addExcuse,jdbcType=VARCHAR})
   </insert>
   <update id="updateByPrimaryKey" parameterType="com.swpu.uchain.community.entity.AddInfo" >
     update add_info
@@ -26,13 +31,31 @@
       add_state = #{addState,jdbcType=VARCHAR}
     where add_id = #{addId,jdbcType=INTEGER}
   </update>
+  <update id="updateAddTimeState">
+    update add_info
+    set add_state = #{addState}
+    where add_id = #{addId}
+  </update>
   <select id="selectByPrimaryKey" resultMap="BaseResultMap" parameterType="java.lang.Integer" >
     select add_id, user_id, add_time, add_date, add_state
     from add_info
     where add_id = #{addId,jdbcType=INTEGER}
   </select>
   <select id="selectAll" resultMap="BaseResultMap" >
-    select add_id, user_id, add_time, add_date, add_state
+    select add_id, user_id, add_time, add_date, add_state, add_excuse
     from add_info
+  </select>
+    <select id="getAllByUserId" resultType="com.swpu.uchain.community.entity.AddInfo">
+      select
+      add_id, user_id, add_time, add_date, add_state
+      from add_info
+      where
+      user_id = #{userId}
+    </select>
+  <select id="getSelfAddInfo" resultType="com.swpu.uchain.community.vo.AddBasicInfoVO">
+    select
+     add_time, add_state, add_date
+     from add_info
+     where user_id = #{userId}
   </select>
 </mapper>

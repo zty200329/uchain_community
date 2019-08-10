@@ -1,8 +1,10 @@
 package com.swpu.uchain.community.service.impl;
 
 import com.swpu.uchain.community.dao.UserMapper;
+import com.swpu.uchain.community.dto.SetQualifyTimeDTO;
 import com.swpu.uchain.community.entity.User;
 import com.swpu.uchain.community.enums.ResultEnum;
+import com.swpu.uchain.community.exception.BasicException;
 import com.swpu.uchain.community.form.LoginForm;
 import com.swpu.uchain.community.security.JwtProperties;
 import com.swpu.uchain.community.security.JwtUserDetailServiceImpl;
@@ -85,5 +87,15 @@ public class UserServiceImpl implements UserService {
         map.put("token", realToken);
 
         return ResultVOUtil.success(map);
+    }
+
+    @Override
+    public ResultVO setQualifyTime(String userName, Integer qualifyTime) {
+        int result = userMapper.updateQualifyTime(userName, qualifyTime);
+        if(result != 1){
+            throw new BasicException(ResultEnum.USER_NOT_EXIST.getCode(), ResultEnum.USER_NOT_EXIST.getMsg());
+        }
+        SetQualifyTimeDTO setQualifyTimeDTO = new SetQualifyTimeDTO(userName, qualifyTime);
+        return ResultVOUtil.success(setQualifyTimeDTO);
     }
 }
