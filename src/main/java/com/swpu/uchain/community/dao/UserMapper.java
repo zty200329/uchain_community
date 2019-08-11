@@ -30,4 +30,6 @@ public interface UserMapper {
     int updateTimes(String userId, Integer unQualifyTimes);
 
     int updateQualifyTime(@Param("userName") String userName, @Param("qualifyTime") Integer qualifyTime);
+
+
 }
