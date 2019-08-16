@@ -38,53 +38,18 @@
       group_id = #{groupId,jdbcType=INTEGER}
     where id = #{id,jdbcType=INTEGER}
   </update>
-  <select id="selectByPrimaryKey" parameterType="java.lang.Integer" resultMap="BaseResultMap">
-    select id, stu_id, true_name, `password`, `role`, user_desc, user_pic_id, unQualify_times, 
-    group_id
-    from user
-    where id = #{id,jdbcType=INTEGER}
-  </select>
-  <select id="selectAll" resultMap="BaseResultMap">
-    select id, stu_id, true_name, `password`, `role`, user_desc, user_pic_id, unQualify_times, 
-    group_id
-    from user
-  </select>
-  <resultMap id="BaseResultMap" type="com.swpu.uchain.community.entity.User">
-    <id column="id" jdbcType="INTEGER" property="id" />
-    <result column="stu_id" jdbcType="VARCHAR" property="stuId" />
-    <result column="true_name" jdbcType="VARCHAR" property="trueName" />
-    <result column="password" jdbcType="VARCHAR" property="password" />
-    <result column="role" jdbcType="INTEGER" property="role" />
-    <result column="user_desc" jdbcType="VARCHAR" property="userDesc" />
-    <result column="user_pic_id" jdbcType="INTEGER" property="userPicId" />
-    <result column="unQualify_times" jdbcType="INTEGER" property="unqualifyTimes" />
-    <result column="group_id" jdbcType="INTEGER" property="groupId" />
-  </resultMap>
-  <delete id="deleteByPrimaryKey" parameterType="java.lang.Integer">
-    delete from user
-    where id = #{id,jdbcType=INTEGER}
-  </delete>
-  <insert id="insert" parameterType="com.swpu.uchain.community.entity.User">
-    insert into user (id, stu_id, true_name, 
-      `password`, `role`, user_desc, 
-      user_pic_id, unQualify_times, group_id
-      )
-    values (#{id,jdbcType=INTEGER}, #{stuId,jdbcType=VARCHAR}, #{trueName,jdbcType=VARCHAR}, 
-      #{password,jdbcType=VARCHAR}, #{role,jdbcType=INTEGER}, #{userDesc,jdbcType=VARCHAR}, 
-      #{userPicId,jdbcType=INTEGER}, #{unqualifyTimes,jdbcType=INTEGER}, #{groupId,jdbcType=INTEGER}
-      )
-  </insert>
-  <update id="updateByPrimaryKey" parameterType="com.swpu.uchain.community.entity.User">
-    update user
-    set stu_id = #{stuId,jdbcType=VARCHAR},
-      true_name = #{trueName,jdbcType=VARCHAR},
-      `password` = #{password,jdbcType=VARCHAR},
-      `role` = #{role,jdbcType=INTEGER},
-      user_desc = #{userDesc,jdbcType=VARCHAR},
-      user_pic_id = #{userPicId,jdbcType=INTEGER},
-      unQualify_times = #{unqualifyTimes,jdbcType=INTEGER},
-      group_id = #{groupId,jdbcType=INTEGER}
-    where id = #{id,jdbcType=INTEGER}
+    <update id="updateTimes">
+      update user
+      set unQualify_times = #{unQualifyTimes,jdbcType=INTEGER},
+      where
+      stu_id = #{userId}
+    </update>
+  <update id="updateQualifyTime">
+    update
+    user
+    set
+    qualify_time = #{qualifyTime}
+    where true_name = #{userName}
   </update>
   <select id="selectByPrimaryKey" parameterType="java.lang.Integer" resultMap="BaseResultMap">
     select id, stu_id, true_name, `password`, `role`, user_desc, user_pic_id, unQualify_times, 
@@ -98,9 +63,33 @@
     from user
   </select>
     <select id="getUserByStuId" resultType="com.swpu.uchain.community.entity.User">
-    select id, stu_id, true_name, `password`, `role`, user_desc, user_pic_id, unQualify_times,
+    select id, stu_id, true_name, `password`, `role`, user_desc, user_pic_id, unQualify_times, qualify_time,
     group_id
     from user
     where stu_id=#{stuId}
     </select>
+  <select id="getUserByName" resultType="com.swpu.uchain.community.entity.User">
+    select
+        stu_id stuId,
+        true_name trueName,
+        password,
+        role,
+        unQualify_times unQualifyTimes
+        FROM
+        user
+        where true_name=#{trueName}
+  </select>
+  <select id="getAllUserName" resultType="java.lang.String">
+    select
+    true_name
+    from
+    user
+  </select>
+  <select id="getUserIdByName" resultType="java.lang.String">
+    select
+    stu_id userId
+    FROM user
+    where
+    true_name=#{userName}
+  </select>
 </mapper>
