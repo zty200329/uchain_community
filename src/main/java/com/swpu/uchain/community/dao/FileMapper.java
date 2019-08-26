@@ -1,7 +1,10 @@
 package com.swpu.uchain.community.dao;
 
+
 import com.swpu.uchain.community.entity.File;
+
 import java.util.List;
+
 
 public interface FileMapper {
     int deleteByPrimaryKey(Integer id);
@@ -13,4 +16,6 @@ public interface FileMapper {
     List<File> selectAll();
 
     int updateByPrimaryKey(File record);
+
+    int deleteByUrl(String url);
 }
