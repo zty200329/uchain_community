@@ -1,0 +1,61 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.swpu.uchain.community.dao.AddInfoMapper" >
+  <resultMap id="BaseResultMap" type="com.swpu.uchain.community.entity.AddInfo" >
+    <id column="add_id" property="addId" jdbcType="INTEGER" />
+    <result column="user_id" property="userId" jdbcType="VARCHAR" />
+    <result column="add_time" property="addTime" jdbcType="VARCHAR" />
+    <result column="add_date" property="addDate" jdbcType="VARCHAR" />
+    <result column="add_state" property="addState" jdbcType="VARCHAR" />
+  </resultMap>
+  <delete id="deleteByPrimaryKey" parameterType="java.lang.Integer" >
+    delete from add_info
+    where add_id = #{addId,jdbcType=INTEGER}
+  </delete>
+  <delete id="deleteOneWeekAgo">
+    delete from add_info
+    where
+    time_date between #{startDate} and #{endDate}
+  </delete>
+  <insert id="insert" parameterType="com.swpu.uchain.community.entity.AddInfo" >
+    insert into add_info (user_id, add_time,
+      add_date, add_state, add_excuse)
+    values (#{userId,jdbcType=VARCHAR}, #{addTime,jdbcType=VARCHAR},
+      #{addDate,jdbcType=VARCHAR}, #{addState,jdbcType=VARCHAR}, #{addExcuse,jdbcType=VARCHAR})
+  </insert>
+  <update id="updateByPrimaryKey" parameterType="com.swpu.uchain.community.entity.AddInfo" >
+    update add_info
+    set user_id = #{userId,jdbcType=VARCHAR},
+      add_time = #{addTime,jdbcType=VARCHAR},
+      add_date = #{addDate,jdbcType=VARCHAR},
+      add_state = #{addState,jdbcType=VARCHAR}
+    where add_id = #{addId,jdbcType=INTEGER}
+  </update>
+  <update id="updateAddTimeState">
+    update add_info
+    set add_state = #{addState}
+    where add_id = #{addId}
+  </update>
+  <select id="selectByPrimaryKey" resultMap="BaseResultMap" parameterType="java.lang.Integer" >
+    select add_id, user_id, add_time, add_date, add_state
+    from add_info
+    where add_id = #{addId,jdbcType=INTEGER}
+  </select>
+  <select id="selectAll" resultMap="BaseResultMap" >
+    select add_id, user_id, add_time, add_date, add_state, add_excuse
+    from add_info
+  </select>
+    <select id="getAllByUserId" resultType="com.swpu.uchain.community.entity.AddInfo">
+      select
+      add_id, user_id, add_time, add_date, add_state
+      from add_info
+      where
+      user_id = #{userId}
+    </select>
+  <select id="getSelfAddInfo" resultType="com.swpu.uchain.community.vo.AddBasicInfoVO">
+    select
+     add_time, add_state, add_date
+     from add_info
+     where user_id = #{userId}
+  </select>
+</mapper>

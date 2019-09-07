@@ -1,0 +1,142 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.swpu.uchain.community.dao.TimeInfoMapper" >
+  <resultMap id="BaseResultMap" type="com.swpu.uchain.community.entity.TimeInfo" >
+    <id column="time_id" property="timeId" jdbcType="VARCHAR" />
+    <result column="user_id" property="userId" jdbcType="VARCHAR" />
+    <result column="time_date" property="timeDate" jdbcType="VARCHAR" />
+    <result column="time_in" property="timeIn" jdbcType="VARCHAR" />
+    <result column="time_out" property="timeOut" jdbcType="VARCHAR" />
+    <result column="time_state" property="timeState" jdbcType="VARCHAR" />
+    <result column="time_valid" property="timeValid" jdbcType="VARCHAR" />
+  </resultMap>
+  <delete id="deleteByPrimaryKey" parameterType="java.lang.String">
+    delete from time_info
+    where time_id = #{timeId,jdbcType=VARCHAR}
+  </delete>
+  <insert id="insert" parameterType="com.swpu.uchain.community.entity.TimeInfo">
+    insert into time_info (time_id, user_id, time_date,
+      time_in, time_out, time_state,
+      time_valid)
+    values (#{timeId,jdbcType=VARCHAR}, #{userId,jdbcType=VARCHAR}, #{timeDate,jdbcType=VARCHAR},
+      #{timeIn,jdbcType=VARCHAR}, #{timeOut,jdbcType=VARCHAR}, #{timeState,jdbcType=VARCHAR},
+      #{timeValid,jdbcType=VARCHAR})
+  </insert>
+  <select id="selectByPrimaryKey" parameterType="java.lang.String" resultMap="BaseResultMap">
+    select time_id, user_id, time_date, time_in, time_out, time_state, time_valid
+    from time_info
+    where time_id = #{timeId,jdbcType=VARCHAR}
+  </select>
+  <select id="selectAll" resultMap="BaseResultMap">
+    select time_id, user_id, time_date, time_in, time_out, time_state, time_valid
+    from time_info
+  </select>
+  <delete id="deleteAll">
+        DELETE FROM
+        time_info
+        where
+        time_date BETWEEN #{startDate} AND #{endDate}
+    </delete>
+  <delete id="deleteOneDayAgo">
+        DELETE FROM
+        agotime_tb
+        WHERE
+        datediff(curdate(), time_date)&gt;180
+    </delete>
+  <insert id="addTimeTable">
+    INSERT INTO
+        time_info
+        (time_id,user_id,time_date,time_in,time_state)
+        VALUE
+        (#{timeId},#{userId},#{timeDate},#{timeIn},#{timeState})
+  </insert>
+  <insert id="insertListToAgoTable">
+    INSERT INTO
+    agotime_tb
+    (time_id,user_id,time_date,time_in,time_out,time_state,time_valid)
+    values
+    <foreach collection="timeInfoList" item="timeInfo" separator=",">
+      (#{timeInfo.timeId},#{timeInfo.userId},#{timeInfo.timeDate},#{timeInfo.timeIn},#{timeInfo.timeOut},#{timeInfo.timeState},#{timeInfo.timeValid})
+    </foreach>
+  </insert>
+  <insert id="insertOneTimeSup">
+        INSERT INTO
+        time_info
+        (time_id,user_id,time_date,time_in,time_out,time_state,time_valid)
+        VALUES
+        (#{timeId},#{userId},#{timeDate},#{timeIn},#{timeOut},#{timeState},#{timeValid})
+    </insert>
+  <update id="updateByPrimaryKey" parameterType="com.swpu.uchain.community.entity.TimeInfo">
+    update time_info
+    set user_id = #{userId,jdbcType=VARCHAR},
+      time_date = #{timeDate,jdbcType=VARCHAR},
+      time_in = #{timeIn,jdbcType=VARCHAR},
+      time_out = #{timeOut,jdbcType=VARCHAR},
+      time_state = #{timeState,jdbcType=VARCHAR},
+      time_valid = #{timeValid,jdbcType=VARCHAR}
+    where time_id = #{timeId,jdbcType=VARCHAR}
+  </update>
+  <update id="updateTimeTable">
+        UPDATE
+        time_info
+        SET
+        time_out=#{timeOut},time_state=#{timeState},time_valid=#{timeValid}
+        WHERE
+        time_id=#{timeId}
+  </update>
+  <update id="timerUpdate">
+    UPDATE
+        time_info
+        SET
+        time_state=0,time_valid="N"
+        WHERE
+        time_out IS NULL
+  </update>
+  <select id="getTablesByDate" resultType="com.swpu.uchain.community.entity.TimeInfo">
+    select time_id, user_id, time_date, time_in, time_out, time_state, time_valid
+    from time_info
+    where
+    user_id=#{userId} and time_date between #{startDate} and #{endDate}
+    order by time_date ASC , time_in ASC
+  </select>
+  <select id="getAgoTableByDate" resultType="com.swpu.uchain.community.entity.TimeInfo">
+    SELECT
+    time_id timeId,
+    user_id userId,
+    time_date timeDate,
+    time_in timeIn,
+    time_out timeOut,
+    time_state timeState,
+    time_valid timeValid
+    FROM
+    agotime_tb
+    WHERE
+    user_id=#{userId} AND time_date BETWEEN #{startDate} AND #{endDate}
+    ORDER BY time_date ASC ,time_in ASC
+  </select>
+  <select id="getSignListByDate" resultType="com.swpu.uchain.community.vo.SignListVo">
+        SELECT
+	    u.stu_id userId,
+	    u.true_name userName,
+	    t.time_id timeId,
+	    t.time_state timeState
+        FROM user u
+        LEFT JOIN
+        time_info t
+        ON (t.user_id=u.stu_id AND t.time_date=#{tempDate} AND t.time_state=1)
+  </select>
+  <select id="isRepeat" resultType="com.swpu.uchain.community.entity.TimeInfo">
+    SELECT
+        time_id timeId,
+        user_id userId,
+        time_date timeDate,
+        time_in timeIn,
+        time_out timeOut,
+        time_state timeState,
+        time_valid timeValid
+        FROM
+        time_info
+        WHERE
+        user_id=#{userId} AND time_date=#{tempDate} AND time_state="1"
+  </select>
+</mapper>
